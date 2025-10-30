@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Live Scores</title>
+    <style>
+        body { font-family: Arial; background: #f0f0f0; }
+        .score { background: #fff; padding: 10px; margin: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Live Scores</h1>
+    <div id="scores"></div>
+    <script>
+        // This code fetches scores safely every minute
+        function loadScores() {
+            fetch('/.netlify/functions/getScores')  // Safe call to our hidden function
+                .then(response => response.json())
+                .then(data => {
+                    const scoresDiv = document.getElementById('scores');
+                    scoresDiv.innerHTML = '';  // Clear old data
+                    data.matches.forEach(match => {
+                        const matchDiv = document.createElement('div');
+                        matchDiv.className = 'score';
+                        matchDiv.innerHTML = `<strong>${match.homeTeam.name} vs ${match.awayTeam.name}</strong><br>Score: ${match.score.fullTime.homeTeam || 0} - ${match.score.fullTime.awayTeam || 0}`;
+                        scoresDiv.appendChild(matchDiv);
+                    });
+                })
+                .catch(error => console.error('Error loading scores:', error));
+        }
+        loadScores();  // Load once
+        setInterval(loadScores, 60000);  // Update every 60 seconds
+    </script>
+</body>
+</html>
